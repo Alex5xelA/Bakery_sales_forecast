@@ -12,7 +12,7 @@ ds_path = 'raw_data/final_dataset.csv'
 df = pd.read_csv(ds_path)
 
 # target col
-series = TimeSeries.from_dataframe(df, 'index', 'traditional_baguette')
+series = TimeSeries.from_dataframe(df, [['index', 'traditional_baguette']])
 
 # split the data into training and testing sets
 train, test = series.split_after(0.8)
