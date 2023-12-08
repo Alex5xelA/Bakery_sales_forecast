@@ -1,1 +1,4 @@
 raw_data/
+models/
+.env
+.env/
