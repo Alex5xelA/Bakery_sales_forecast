@@ -1,0 +1,5 @@
+pickle5
+darts
+pandas
+numpy
+uvicorn

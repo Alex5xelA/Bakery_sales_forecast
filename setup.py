@@ -10,7 +10,7 @@ if os.path.isfile('requirements_dev.txt'):
     with open('requirements_dev.txt') as f:
         content = f.readlines()
     requirements.extend([x.strip() for x in content if 'git+' not in x])
-setup(name='bakerysales',
+setup(name='bakery_sales',
       version="0.0.1",
       description="Project Description",
       packages=find_packages(),
