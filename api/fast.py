@@ -1,9 +1,13 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+import csv
+import codecs
+
+from bakery_sales.modeling import model
 
 app = FastAPI()
 
-# app.state.model = ""
+app.state.model = model()
 
 app.add_middleware(
     CORSMiddleware,
@@ -13,11 +17,19 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+    
+@app.post("/upload")
+def upload(file: UploadFile = File(...)):
+    csvReader = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
+    data = {}
+    for rows in csvReader:             
+        key = rows[['traditional_baguette']]  # Assuming a column named 'Id' to be the primary key
+        data[key] = rows
+    
+    file.file.close()
+    data.pd_dataframe()
+    return data
 
 @app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, query_param: str = None):
-    return {"item_id": item_id, "query_param": query_param}
+def root():
+    return {'greeting': 'Hello'}

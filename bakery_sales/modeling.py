@@ -16,7 +16,7 @@ pt_file_path = 'weights/tft_tuning_2.pt'
 # new tft model
 
 # load pytorch model and set to eval mode
-model = TFTModel.load_from_checkpoint(pt_file_path)
+model = TFTModel.load(pt_file_path)
 # model.eval()
 
 def prediction(sales_file, weather_file, model):
@@ -24,7 +24,7 @@ def prediction(sales_file, weather_file, model):
     df_weather = weather_file
 
 
-    weather_file = pd.read_csv('../raw_data/open-meteo-paris.csv')
+    weather_file = pd.read_csv('raw_data/open-meteo-paris.csv')
 
     df_weather = weather_file
 
@@ -112,4 +112,8 @@ def prediction(sales_file, weather_file, model):
     output = output.pd_dataframe()
     output_plot = output.plot(legend = True)
 
+    print("code works ✅")
+
     return output, output_plot
+
+prediction()
