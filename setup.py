@@ -6,8 +6,8 @@ if os.path.isfile('requirements.txt'):
     with open('requirements.txt') as f:
         content = f.readlines()
     requirements.extend([x.strip() for x in content if 'git+' not in x])
-if os.path.isfile('requirements_dev.txt'):
-    with open('requirements_dev.txt') as f:
+if os.path.isfile('requirements_prod.txt'):
+    with open('requirements_prod.txt') as f:
         content = f.readlines()
     requirements.extend([x.strip() for x in content if 'git+' not in x])
 setup(name='bakery_sales',
