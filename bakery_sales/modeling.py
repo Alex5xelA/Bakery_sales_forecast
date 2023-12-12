@@ -67,33 +67,37 @@ def prediction(sales_file, weather_file, model):
         '2022-08-15',
     ]
     #holidays = [pd.to_datetime(holiday)for holiday in holidays]
-    #df_weather['isHoliday'] = df_weather.index.map(lambda x: 1 if x in holidays else 0)
+    # df_weather['isHoliday'] = df_weather.index.map(lambda x: 1 if x in holidays else 0)
     df_weather['isHoliday'] = df_weather.index.map(lambda x: 1 if x.strftime('%Y-%m-%d') in holidays else 0)
     # df_weather = df_weather.resample('20min', on = 'timestamp').mean().ffill()
 
     type(df_weather.index[0].strftime('%Y-%m-%d'))
 
-    merged_data = df_weather.join(data_target, how = 'left')
-
-    final_data = merged_data
+    final_data = df_weather.join(data_target, how = 'left')
+    final_data = final_data.loc[:data_target.index.max()]
 
     final_data = final_data.fillna(value = 0)
 
-    final_data.reset_index(inplace = True)
-
-    output_chunk_length = 7 * 24 
-    print(final_data.columns)
+    output_chunk_length = 7 * 24
     series = TimeSeries.from_dataframe(final_data[['traditional_baguette']])
     past_covariates = TimeSeries.from_dataframe(final_data[['temperature_2m (°C)', 'relative_humidity_2m (%)', 'rain (mm)', 'wind_speed_100m (km/h)', 'day_of_week_sin', 'day_of_week_cos', 'month_sin', 'month_cos', 'isHoliday']])
-    future_covariates = TimeSeries.from_dataframe(final_data[['temperature_2m (°C)', 'relative_humidity_2m (%)', 'rain (mm)', 'wind_speed_100m (km/h)', 'day_of_week_sin', 'day_of_week_cos', 'month_sin', 'month_cos', 'isHoliday']])
+    future_covariates = TimeSeries.from_dataframe(df_weather[['temperature_2m (°C)', 'relative_humidity_2m (%)', 'rain (mm)', 'wind_speed_100m (km/h)', 'day_of_week_sin', 'day_of_week_cos', 'month_sin', 'month_cos', 'isHoliday']])
+
+
+    # print(series.duration, series.start_time(), series.end_time())
+    # print(past_covariates.duration, past_covariates.start_time(), past_covariates.end_time())
+    # print(future_covariates.duration, future_covariates.start_time(), future_covariates.end_time())
 
     output = model.predict(n = output_chunk_length,
                    series = series,
                    past_covariates = past_covariates,
-                   future_covariates = future_covariates)
-                   
-    output = output.pd_dataframe()
+                   future_covariates = future_covariates).pd_dataframe()
+    
+    values = [value[0] for value in output.values]
+    dates = output.index
+
+    dates = output.index.strftime('%Y-%m-%d %H:%M:%S').values
 
     print("code works ✅")
 
-    return output
+    return {'values' : list(values), 'dates' : list(dates)}

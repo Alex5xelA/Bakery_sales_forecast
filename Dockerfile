@@ -13,4 +13,4 @@ RUN pip install -e .
 RUN pip install fastapi uvicorn
 RUN pip install python-multipart
 
-CMD uvicorn api.fast:app --host 0.0.0.0
+CMD uvicorn api.fast:app --host 0.0.0.0 --port $PORT
