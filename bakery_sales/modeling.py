@@ -1,33 +1,15 @@
-import torch
 import pandas as pd
 import numpy as np
 from datetime import datetime
-from darts.models.forecasting.tft_model import TFTModel
+from bakery_sales.preprocessor import preprocess
 
 from darts import TimeSeries
-from darts.models.forecasting.tft_model import TFTModel
-from darts.metrics import mse
-from darts.dataprocessing.transformers import Scaler
-from darts.metrics import smape, mae
-from torchmetrics.regression import MeanAbsoluteError
-
-# specify path to pytorch model .pt file
-pt_file_path = 'weights/tft_tuning_2.pt'
-# new tft model
-
-# load pytorch model and set to eval mode
-model = TFTModel.load(pt_file_path)
-# model.eval()
 
 def prediction(sales_file, weather_file, model):
-    data_target = sales_file
+    sales_file_preprocessed = preprocess(sales_file)
+    data_target = sales_file_preprocessed
     df_weather = weather_file
-
-
-    weather_file = pd.read_csv('raw_data/open-meteo-paris.csv')
-
-    df_weather = weather_file
-
+    
     datetime.strptime(df_weather['time'][4], '%Y-%m-%dT%H:%M')
     df_weather['timestamp'] = df_weather['time'].apply(lambda x: datetime.strptime(x, '%Y-%m-%dT%H:%M'))
 
@@ -100,6 +82,7 @@ def prediction(sales_file, weather_file, model):
     final_data.reset_index(inplace = True)
 
     output_chunk_length = 7 * 24 
+    print(final_data.columns)
     series = TimeSeries.from_dataframe(final_data[['traditional_baguette']])
     past_covariates = TimeSeries.from_dataframe(final_data[['temperature_2m (°C)', 'relative_humidity_2m (%)', 'rain (mm)', 'wind_speed_100m (km/h)', 'day_of_week_sin', 'day_of_week_cos', 'month_sin', 'month_cos', 'isHoliday']])
     future_covariates = TimeSeries.from_dataframe(final_data[['temperature_2m (°C)', 'relative_humidity_2m (%)', 'rain (mm)', 'wind_speed_100m (km/h)', 'day_of_week_sin', 'day_of_week_cos', 'month_sin', 'month_cos', 'isHoliday']])
@@ -110,10 +93,7 @@ def prediction(sales_file, weather_file, model):
                    future_covariates = future_covariates)
                    
     output = output.pd_dataframe()
-    output_plot = output.plot(legend = True)
 
     print("code works ✅")
 
-    return output, output_plot
-
-prediction()
+    return output

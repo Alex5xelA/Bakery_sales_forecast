@@ -1,13 +1,22 @@
 from fastapi import FastAPI, UploadFile, File
+from typing import List
 from fastapi.middleware.cors import CORSMiddleware
-import csv
-import codecs
+import pandas as pd
+from bakery_sales.modeling import prediction
 
-from bakery_sales.modeling import model
+from darts.models.forecasting.tft_model import TFTModel
 
 app = FastAPI()
 
-app.state.model = model()
+# specify path to pytorch model .pt file
+pt_file_path = 'weights/tft_tuning_2.pt'
+# new tft model
+
+# load pytorch model and set to eval mode
+model = TFTModel.load(pt_file_path)
+# model.eval()
+
+app.state.model = model
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,16 +28,16 @@ app.add_middleware(
 
     
 @app.post("/upload")
-def upload(file: UploadFile = File(...)):
-    csvReader = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
-    data = {}
-    for rows in csvReader:             
-        key = rows[['traditional_baguette']]  # Assuming a column named 'Id' to be the primary key
-        data[key] = rows
-    
-    file.file.close()
-    data.pd_dataframe()
-    return data
+def upload_files(files: List[UploadFile] = File(...)):
+    dataframes = []
+    for file in files:
+        df = pd.read_csv(file.file)
+        file.file.close()
+        dataframes.append(df)
+    pred = prediction(dataframes[0], dataframes[1], app.state.model)
+    return {"output": pred}
+
+
 
 @app.get("/")
 def root():
