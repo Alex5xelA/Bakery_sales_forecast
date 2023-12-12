@@ -29,8 +29,10 @@ data/
 
 # Saved models
 models/
+weights/
 *.joblib
 *.h5
+*.pt
 
 # Any pickle files
 *.pickle
