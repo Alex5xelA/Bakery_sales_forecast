@@ -93,11 +93,13 @@ def prediction(sales_file, weather_file, model):
                    past_covariates = past_covariates,
                    future_covariates = future_covariates).pd_dataframe()
 
-    values = [value[0] for value in output.values]
+    preds_tradi = [value[0] for value in output.values]
+    preds_croissant = [value[1] for value in output.values]
+    preds_pain_au_choc = [value[2] for value in output.values]
     dates = output.index
 
     dates = output.index.strftime('%Y-%m-%d %H:%M:%S').values
 
     print("code works ✅")
 
-    return {'values' : list(values), 'dates' : list(dates)}
+    return {'tradi' : list(preds_tradi), 'croissant' : list(preds_croissant), 'pain_au_choc' : list(preds_pain_au_choc), 'dates' : list(dates)}
