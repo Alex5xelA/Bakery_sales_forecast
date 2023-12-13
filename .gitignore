@@ -41,6 +41,7 @@ weights/
 
 # Credentials (or files with potentially credentials inside)
 .env
+.envrc
 .env.yaml
 .credentials
 secrets.toml

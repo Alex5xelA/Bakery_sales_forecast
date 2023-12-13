@@ -9,7 +9,7 @@ from darts.models.forecasting.tft_model import TFTModel
 app = FastAPI()
 
 # specify path to pytorch model .pt file
-pt_file_path = 'weights/tft_tuning_2.pt'
+pt_file_path = 'weights/tft_model_final.pt'
 # new tft model
 
 # load pytorch model and set to eval mode
@@ -18,7 +18,6 @@ model = TFTModel.load(pt_file_path)
 
 app.state.model = model
 
-# Allowing all middleware is optional, but good practice for dev purposes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -27,7 +26,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-    
+
 @app.post("/upload")
 def upload_files(files: List[UploadFile] = File(...)):
     dataframes = []
@@ -37,6 +36,7 @@ def upload_files(files: List[UploadFile] = File(...)):
         dataframes.append(df)
     pred = prediction(dataframes[0], dataframes[1], app.state.model)
     return {"output": pred}
+
 
 
 @app.get("/")

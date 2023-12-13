@@ -9,7 +9,7 @@ def prediction(sales_file, weather_file, model):
     sales_file_preprocessed = preprocess(sales_file)
     data_target = sales_file_preprocessed
     df_weather = weather_file
-    
+
     datetime.strptime(df_weather['time'][4], '%Y-%m-%dT%H:%M')
     df_weather['timestamp'] = df_weather['time'].apply(lambda x: datetime.strptime(x, '%Y-%m-%dT%H:%M'))
 
@@ -79,7 +79,7 @@ def prediction(sales_file, weather_file, model):
     final_data = final_data.fillna(value = 0)
 
     output_chunk_length = 7 * 24
-    series = TimeSeries.from_dataframe(final_data[['traditional_baguette']])
+    series = TimeSeries.from_dataframe(final_data[['traditional_baguette', 'croissant', 'pain_au_chocolat']])
     past_covariates = TimeSeries.from_dataframe(final_data[['temperature_2m (°C)', 'relative_humidity_2m (%)', 'rain (mm)', 'wind_speed_100m (km/h)', 'day_of_week_sin', 'day_of_week_cos', 'month_sin', 'month_cos', 'isHoliday']])
     future_covariates = TimeSeries.from_dataframe(df_weather[['temperature_2m (°C)', 'relative_humidity_2m (%)', 'rain (mm)', 'wind_speed_100m (km/h)', 'day_of_week_sin', 'day_of_week_cos', 'month_sin', 'month_cos', 'isHoliday']])
 
@@ -92,12 +92,14 @@ def prediction(sales_file, weather_file, model):
                    series = series,
                    past_covariates = past_covariates,
                    future_covariates = future_covariates).pd_dataframe()
-    
-    values = [value[0] for value in output.values]
+
+    preds_tradi = [value[0] for value in output.values]
+    preds_croissant = [value[1] for value in output.values]
+    preds_pain_au_choc = [value[2] for value in output.values]
     dates = output.index
 
     dates = output.index.strftime('%Y-%m-%d %H:%M:%S').values
 
     print("code works ✅")
 
-    return {'values' : list(values), 'dates' : list(dates)}
+    return {'tradi' : list(preds_tradi), 'croissant' : list(preds_croissant), 'pain_au_choc' : list(preds_pain_au_choc), 'dates' : list(dates)}
