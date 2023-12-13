@@ -18,6 +18,7 @@ model = TFTModel.load(pt_file_path)
 
 app.state.model = model
 
+# Allowing all middleware is optional, but good practice for dev purposes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allows all origins
@@ -36,7 +37,6 @@ def upload_files(files: List[UploadFile] = File(...)):
         dataframes.append(df)
     pred = prediction(dataframes[0], dataframes[1], app.state.model)
     return {"output": pred}
-
 
 
 @app.get("/")
